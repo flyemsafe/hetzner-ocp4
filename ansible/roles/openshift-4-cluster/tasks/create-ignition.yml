@@ -3,19 +3,30 @@
   file:
     path: "{{ openshift_install_dir }}"
     state: directory
+    owner: "{{ admin_user }}"
 
 - name: Create install config
   template:
     src: install-config.yaml.j2
     dest: "{{ openshift_install_dir }}/install-config.yaml"
+    owner: "{{ admin_user }}"
 
 - name: Save install-config from deletion
   copy:
     dest: "{{ openshift_install_dir }}/install-config.yaml.original"
     src: "{{ openshift_install_dir }}/install-config.yaml"
+    owner: "{{ admin_user }}"
 
 - name: Create ignition files
   command: "/usr/local/bin/openshift-install --dir={{ openshift_install_dir }} create ignition-configs"
   args:
     creates: "{{ openshift_install_dir}}/.openshift_install_state.json"
-  become: true
+  #become: true
+
+- name: Ensure installion directory ownership is set to "{{ admin_user }}"
+  file:
+    path: "{{ openshift_install_dir }}"
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+    state: directory
+    recurse: yes

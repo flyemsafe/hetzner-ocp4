@@ -12,6 +12,11 @@
   vars:
     vm_instance_name: "{{ cluster_name }}-bootstrap"
 
+- name: remove all dns records
+  vars:
+    dns_teardown: true
+  include: idm.yml
+
 - include: destroy-vm.yml
   vars:
     vm_instance_name: "{{ cluster_name }}-master-{{ item }}"
@@ -30,7 +35,7 @@
 - name: Clean OpenShift install directory 
   file:
     state: absent
-    path: "{{ openshift_install_dir }}/"
+    path: "{{ openshift_install_dir }}"
   become: yes
   tags: ignition
 

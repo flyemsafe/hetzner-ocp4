@@ -1,0 +1,15 @@
+---
+- name: Create compute node
+  include: create-vm-compute.yml
+  vars:
+    vm_instance_name: "{{ cluster_name }}-compute-{{ item }}"
+    vm_network: "{{ cluster_name }}"
+    vm_ignition_file: "{{ openshift_install_dir }}/worker.ign"
+    vm_mac_address: "52:54:00:{{ '%02x' % vn_subnet.split('.')[1]|int }}:{{ '%02x' % vn_subnet.split('.')[2]|int }}:{{ '%02x' % (10 + master_count|int + item|int) }}"
+    vm_vcpu: "{{ compute_vcpu }}"
+    vm_memory_size: "{{ compute_memory_size }}"
+    vm_memory_unit: "{{ compute_memory_unit }}"
+    vm_root_disk_size: "{{ compute_root_disk_size }}"
+    vm_role: worker
+  with_sequence: start=0 end="{{ compute_count|int - 1 }}" stride=1
+  tags: compute_vm

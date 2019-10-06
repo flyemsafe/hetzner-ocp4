@@ -1,0 +1,15 @@
+---
+- name: Create master nodes
+  include: create-vm-master.yml
+  vars:
+    vm_instance_name: "{{ cluster_name }}-master-{{ item }}"
+    vm_network: "{{ cluster_name }}"
+    vm_ignition_file: "{{ openshift_install_dir }}/master.ign"
+    vm_mac_address: "52:54:00:{{ '%02x' % vn_subnet.split('.')[1]|int }}:{{ '%02x' % vn_subnet.split('.')[2]|int }}:{{ '%02x' % (10 + item|int) }}"
+    vm_vcpu: "{{ master_vcpu }}"
+    vm_memory_size: "{{ master_memory_size }}"
+    vm_memory_unit: "{{ master_memory_unit }}"
+    vm_root_disk_size: "{{ master_root_disk_size }}"
+    vm_role: master
+  tags: master_vm
+  with_sequence: start=0 end="{{ master_count|int - 1 }}" stride=1

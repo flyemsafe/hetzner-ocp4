@@ -1,0 +1,27 @@
+#!/usr/bin/env ansible-playbook
+---
+
+- name: Build inventory
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  become: yes
+  vars_files:
+  - ../cluster.yml
+  tasks:
+  - name: checking if podman containers is running
+    shell: "podman container list -a --format {% raw %} 'table {{.Names}} {{.ID}}' {% endraw %}|awk '/ignwebserver/ {print $2}'"
+    register: running_containers
+
+  - debug:
+      var: running_containers
+    when: running_containers.stdout != ""
+  - meta: end_play
+
+  - name: stop running containers
+    shell: "podman stop {{ running_containers.stdout }}"
+    when: running_containers.stdout != ""
+
+  - name: delete {{ podman_webserver }} container
+    shell: "podman rm {{ running_containers.stdout }}"
+    when: running_containers.stdout != ""

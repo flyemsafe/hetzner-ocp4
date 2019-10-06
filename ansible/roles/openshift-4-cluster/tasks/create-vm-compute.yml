@@ -1,19 +1,21 @@
 ---
-# # VM: https://github.com/jdauphant/ansible-role-kvm/blob/master/templates/vm.kvm.libvirt.xml.j2
+# # VM: https://github.com/jdauphant/ansible-role-kvm/blob/compute/templates/vm.kvm.libvirt.xml.j2
 # # /var/lib/libvirt/images/rhcos42.qcow2
 # # /var/lib/libvirt/images/CentOS-7-x86_64-GenericCloud.qcow2
 - name: Create disk for {{ vm_instance_name }}
   command: "qemu-img create -f qcow2 -b {{ coreos_image_location }} /var/lib/libvirt/images/{{ vm_instance_name }}.qcow2 {{ vm_root_disk_size }}"
   args:
-    creates: "/var/lib/libvirt/images/{{ vm_instance_name }}.qcow2"
-#  tags:
-#    - bootstrap_vm
+   creates: "/var/lib/libvirt/images/{{ vm_instance_name }}.qcow2"
+  tags:
+    - compute_vm
 
 - name: Copy ignition {{ vm_instance_name }}
   copy:
     src: "{{ vm_ignition_file }}"
     dest: "/var/lib/libvirt/images/{{ vm_instance_name }}.ign"
   when: not use_coreos_iso|bool
+  tags:
+    - compute_vm
 
 # - name: Debug - create /tmp/{{ vm_instance_name }}.virt.xml
 #   template:
@@ -26,14 +28,20 @@
     command: define
     xml: "{{ lookup('template', 'templates/vm.xml.j2') }}"
   when: not use_coreos_iso|bool
+  tags:
+    - compute_vm
 
 - name: deploying vm instance using coreos iso
   import_role:
     name: swygue.coreos-virt-install-iso
     tasks_from: deploy_vm.yml
   when: use_coreos_iso|bool
+  tags:
+    - compute_vm
 
 - name: Start VirtualMachine {{ vm_instance_name }}
   virt: 
     name: "{{ vm_instance_name }}"
     state: running
+  tags:
+    - compute_vm

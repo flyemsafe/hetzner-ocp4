@@ -18,4 +18,4 @@
   - name: Deploy cluster
     import_role: 
       name: openshift-4-cluster
-      tasks_from: create.yml
+      tasks_from: create-compute.yml

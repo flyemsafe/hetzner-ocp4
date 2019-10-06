@@ -30,7 +30,7 @@
     tmp_ingress_https: "[]"
     tmp_ingress_https_listen: "[ '{{ vn_subnet.split('.')[:3] | join('.')}}.1:443','{{ listen_address }}:443']"
     tmp_machine_config_server: "[ 'bootstrap={{ vn_subnet.split('.')[:3] | join('.')}}.2:22623' ]"
-    tmp_machine_config_server_listen: "['{{ vn_subnet.split('.')[:3] | join('.')}}.1:22623']"
+    tmp_machine_config_server_listen: "['{{ vn_subnet.split('.')[:3] | join('.')}}.1:22623','{{ listen_address }}:22623']"
   tags: lb
 
 - set_fact: 
